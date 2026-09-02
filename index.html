@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Classroom Lyric Reader</title>
+  <style>
+    body {
+      font-family: 'Arial Black', Impact, sans-serif;
+      background-color: #121212;
+      color: #333333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    #lyrics-container {
+      text-align: center;
+      max-width: 90vw;
+      line-height: 1.8;
+      font-size: 3.5rem;
+      letter-spacing: 2px;
+    }
+
+    .line {
+      margin-bottom: 25px;
+      display: block;
+    }
+
+    .syllable {
+      color: #444444;
+      padding: 2px 6px;
+      border-radius: 8px;
+      transition: all 0.1s ease;
+    }
+
+    /* Active syllable styling: bright yellow background, black block text */
+    .syllable.active {
+      color: #000000;
+      background-color: #FFD700;
+      box-shadow: 0 0 15px #FFD700;
+    }
+
+    /* Sung syllables remain bright white for readability */
+    .syllable.passed {
+      color: #FFFFFF;
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      font-family: sans-serif;
+      font-size: 1rem;
+      color: #888888;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="lyrics-container"></div>
+  <div id="controls">Click anywhere or use spacebar/arrow keys to advance</div>
+
+  <script>
+    // Lyric setup with explicit hyphenation for 2nd-grade syllable breakdown
+    const rawLyrics = [
+      "An-chors a-weigh, my boys",
+      "An-chors a-weigh!",
+      "Fare-well to col-lege joys",
+      "We sail at break of day,",
+      "Day, day, day.",
+      "Through our last night on shore",
+      "Hail to the foam",
+      "Un-til we meet once more",
+      "Here’s wish-ing you a hap-py voy-age home"
+    ];
+
+    const container = document.getElementById('lyrics-container');
+    let syllables = [];
+    let currentIndex = -1;
+
+    // Render lyrics into discrete syllable spans
+    rawLyrics.forEach(lineText => {
+      const lineDiv = document.createElement('div');
+      lineDiv.className = 'line';
+      
+      const words = lineText.split(' ');
+      words.forEach((word, wIdx) => {
+        const syls = word.split('-');
+        syls.forEach((sylText, sIdx) => {
+          const span = document.createElement('span');
+          span.className = 'syllable';
+          span.textContent = sylText;
+          
+          lineDiv.appendChild(span);
+          syllables.push(span);
+        });
+
+        // Add spaces between words
+        if (wIdx < words.length - 1) {
+          lineDiv.appendChild(document.createTextNode(' '));
+        }
+      });
+
+      container.appendChild(lineDiv);
+    });
+
+    // Advance to the next syllable
+    function advance() {
+      if (currentIndex < syllables.length - 1) {
+        if (currentIndex >= 0) {
+          syllables[currentIndex].classList.remove('active');
+          syllables[currentIndex].classList.add('passed');
+        }
+        currentIndex++;
+        syllables[currentIndex].classList.add('active');
+        
+        // Auto-scroll to keep current word centered on screen
+        syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // Step back to previous syllable
+    function stepBack() {
+      if (currentIndex >= 0) {
+        syllables[currentIndex].classList.remove('active');
+        currentIndex--;
+        if (currentIndex >= 0) {
+          syllables[currentIndex].classList.remove('passed');
+          syllables[currentIndex].classList.add('active');
+        }
+      }
+    }
+
+    // Event listeners for presentation clickers and keyboard input
+    window.addEventListener('keydown', (e) => {
+      if (['Space', 'ArrowRight', 'PageDown', 'ArrowDown'].includes(e.code)) {
+        e.preventDefault();
+        advance();
+      } else if (['ArrowLeft', 'PageUp', 'ArrowUp'].includes(e.code)) {
+        e.preventDefault();
+        stepBack();
+      }
+    });
+
+    // Tap/Click anywhere on screen to advance
+    window.addEventListener('click', advance);
+  </script>
+</body>
+</html>
