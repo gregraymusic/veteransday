@@ -24,7 +24,7 @@
       max-width: 90vw;
       line-height: 1.8;
       font-size: 3.5rem;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
     }
 
     .line {
@@ -32,21 +32,30 @@
       display: block;
     }
 
+    /* Keeps syllables touching naturally within a word */
+    .word {
+      display: inline-block;
+      white-space: nowrap;
+      margin: 0 12px; 
+    }
+
+    /* Brighter default state (~60% opacity) for easier read-ahead */
     .syllable {
-      color: #444444;
-      padding: 2px 6px;
-      border-radius: 8px;
+      color: #999999; 
+      padding: 2px 0;
+      border-radius: 4px;
       transition: all 0.1s ease;
     }
 
-    /* Active syllable styling: bright yellow background, black block text */
+    /* Active syllable: Bright yellow highlight with dark text */
     .syllable.active {
       color: #000000;
       background-color: #FFD700;
-      box-shadow: 0 0 15px #FFD700;
+      box-shadow: 0 0 12px #FFD700;
+      padding: 2px 4px;
     }
 
-    /* Sung syllables remain bright white for readability */
+    /* Sung syllables remain crisp white */
     .syllable.passed {
       color: #FFFFFF;
     }
@@ -56,7 +65,7 @@
       bottom: 20px;
       font-family: sans-serif;
       font-size: 1rem;
-      color: #888888;
+      color: #777777;
     }
   </style>
 </head>
@@ -66,7 +75,6 @@
   <div id="controls">Click anywhere or use spacebar/arrow keys to advance</div>
 
   <script>
-    // Lyric setup with explicit hyphenation for 2nd-grade syllable breakdown
     const rawLyrics = [
       "An-chors a-weigh, my boys",
       "An-chors a-weigh!",
@@ -83,33 +91,31 @@
     let syllables = [];
     let currentIndex = -1;
 
-    // Render lyrics into discrete syllable spans
     rawLyrics.forEach(lineText => {
       const lineDiv = document.createElement('div');
       lineDiv.className = 'line';
       
       const words = lineText.split(' ');
-      words.forEach((word, wIdx) => {
-        const syls = word.split('-');
-        syls.forEach((sylText, sIdx) => {
-          const span = document.createElement('span');
-          span.className = 'syllable';
-          span.textContent = sylText;
+      words.forEach((wordText) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word';
+
+        const syls = wordText.split('-');
+        syls.forEach((sylText) => {
+          const sylSpan = document.createElement('span');
+          sylSpan.className = 'syllable';
+          sylSpan.textContent = sylText;
           
-          lineDiv.appendChild(span);
-          syllables.push(span);
+          wordSpan.appendChild(sylSpan);
+          syllables.push(sylSpan);
         });
 
-        // Add spaces between words
-        if (wIdx < words.length - 1) {
-          lineDiv.appendChild(document.createTextNode(' '));
-        }
+        lineDiv.appendChild(wordSpan);
       });
 
       container.appendChild(lineDiv);
     });
 
-    // Advance to the next syllable
     function advance() {
       if (currentIndex < syllables.length - 1) {
         if (currentIndex >= 0) {
@@ -119,12 +125,10 @@
         currentIndex++;
         syllables[currentIndex].classList.add('active');
         
-        // Auto-scroll to keep current word centered on screen
         syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
 
-    // Step back to previous syllable
     function stepBack() {
       if (currentIndex >= 0) {
         syllables[currentIndex].classList.remove('active');
@@ -136,7 +140,6 @@
       }
     }
 
-    // Event listeners for presentation clickers and keyboard input
     window.addEventListener('keydown', (e) => {
       if (['Space', 'ArrowRight', 'PageDown', 'ArrowDown'].includes(e.code)) {
         e.preventDefault();
@@ -147,7 +150,6 @@
       }
     });
 
-    // Tap/Click anywhere on screen to advance
     window.addEventListener('click', advance);
   </script>
 </body>
