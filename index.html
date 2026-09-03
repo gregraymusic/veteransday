@@ -230,9 +230,8 @@
       container.appendChild(lineDiv);
     });
 
-    // Directly jump to a syllable index and re-sync passed/active classes
     function jumpToSyllable(targetIndex, event) {
-      if (event) event.stopPropagation(); // Prevents triggers from background click listener
+      if (event) event.stopPropagation();
       if (targetIndex < 0 || targetIndex >= syllables.length) return;
 
       syllables.forEach((syl, i) => {
@@ -248,7 +247,6 @@
       syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // Finds target syllable by text match
     function jumpToWord(targetText, event) {
       const index = syllables.findIndex(syl => syl.textContent.trim() === targetText);
       if (index !== -1) {
@@ -276,6 +274,8 @@
         if (currentIndex >= 0) {
           syllables[currentIndex].classList.remove('passed');
           syllables[currentIndex].classList.add('active');
+          // Now auto-scrolls backward to keep active syllable centered:
+          syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }
