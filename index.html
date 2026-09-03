@@ -7,23 +7,18 @@
     body {
       font-family: 'Arial Black', Impact, sans-serif;
       background-color: #121212;
-      color: #333333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
       margin: 0;
-      padding: 20px;
+      padding: 40px 32vw 40px 40px; /* Padding keeps lyrics clear of sidebar */
       box-sizing: border-box;
       user-select: none;
+      min-height: 100vh;
     }
 
+    /* Main Lyric Layout */
     #lyrics-container {
-      text-align: center;
-      max-width: 90vw;
+      text-align: left;
       line-height: 1.8;
-      font-size: 3.5rem;
+      font-size: 3.2rem;
       letter-spacing: 1px;
     }
 
@@ -32,70 +27,189 @@
       display: block;
     }
 
-    /* Keeps syllables touching naturally within a word */
     .word {
       display: inline-block;
       white-space: nowrap;
-      margin: 0 12px; 
+      margin-right: 18px; 
     }
 
-    /* Brighter default state (~60% opacity) for easier read-ahead */
+    /* Voice Types & Dimmed Read-Ahead Colors */
+    .line.head-voice .syllable {
+      color: #72a2bd; /* Muted pale blue */
+    }
+
+    .line.chest-voice .syllable {
+      color: #c48282; /* Muted pale red */
+    }
+
     .syllable {
-      color: #999999; 
       padding: 2px 0;
       border-radius: 4px;
       transition: all 0.1s ease;
     }
 
-    /* Active syllable: Bright yellow highlight with dark text */
+    /* Active Syllable Highlight */
     .syllable.active {
-      color: #000000;
+      color: #000000 !important;
       background-color: #FFD700;
       box-shadow: 0 0 12px #FFD700;
       padding: 2px 4px;
     }
 
-    /* Sung syllables remain crisp white */
-    .syllable.passed {
-      color: #FFFFFF;
+    /* Sung Syllables */
+    .line.head-voice .syllable.passed {
+      color: #A0C8F0; /* Pale Blue */
+    }
+
+    .line.chest-voice .syllable.passed {
+      color: #FFA0A0; /* Pale Red */
+    }
+
+    /* Persistent Fixed Sidebar */
+    #sidebar {
+      position: fixed;
+      right: 40px;
+      top: 40px;
+      width: 22vw;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 100;
+    }
+
+    .info-card {
+      background-color: #1a1a1a;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      border: 3px solid;
+    }
+
+    .info-card.heavy {
+      border-color: #FFA0A0;
+      color: #FFA0A0;
+    }
+
+    .info-card.light {
+      border-color: #A0C8F0;
+      color: #A0C8F0;
+    }
+
+    .emoji-container {
+      font-size: 2.5rem;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .card-title {
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+
+    /* Phrase Jump Section */
+    #phrase-nav {
+      background-color: #1a1a1a;
+      border-radius: 16px;
+      padding: 18px;
+      border: 2px solid #333333;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-title {
+      color: #888888;
+      font-family: sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 4px 0;
+      text-align: center;
+    }
+
+    .phrase-btn {
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 2px solid #444444;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'Arial Black', sans-serif;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .phrase-btn:hover {
+      background-color: #FFD700;
+      color: #000000;
+      border-color: #FFD700;
     }
 
     #controls {
       position: fixed;
-      bottom: 20px;
+      bottom: 15px;
+      left: 40px;
       font-family: sans-serif;
-      font-size: 1rem;
-      color: #777777;
+      font-size: 0.9rem;
+      color: #666666;
+      z-index: 100;
     }
   </style>
 </head>
 <body>
 
   <div id="lyrics-container"></div>
+
+  <!-- Persistent Sidebar -->
+  <div id="sidebar">
+    <div class="info-card heavy">
+      <div class="emoji-container">🏋️ 🍞</div>
+      <h2 class="card-title">HEAVY</h2>
+    </div>
+
+    <div class="info-card light">
+      <div class="emoji-container">☁️ 🪶</div>
+      <h2 class="card-title">LIGHT</h2>
+    </div>
+
+    <!-- Navigation Shortcuts -->
+    <div id="phrase-nav">
+      <div class="nav-title">Jump to Phrase</div>
+      <button class="phrase-btn" onclick="jumpToSyllable(0, event)">Phrase 1 ("An-chors")</button>
+      <button class="phrase-btn" onclick="jumpToWord('Fare', event)">Phrase 2 ("Fare-well")</button>
+      <button class="phrase-btn" onclick="jumpToWord('Through', event)">Phrase 3 ("Through")</button>
+      <button class="phrase-btn" onclick="jumpToWord('Un', event)">Phrase 4 ("Un-til")</button>
+    </div>
+  </div>
+
   <div id="controls">Click anywhere or use spacebar/arrow keys to advance</div>
 
   <script>
-    const rawLyrics = [
-      "An-chors a-weigh, my boys",
-      "An-chors a-weigh!",
-      "Fare-well to col-lege joys",
-      "We sail at break of day,",
-      "Day, day, day.",
-      "Through our last night on shore",
-      "Hail to the foam",
-      "Un-til we meet once more",
-      "Here’s wish-ing you a hap-py voy-age home"
+    const songData = [
+      { text: "An-chors a-weigh, my boys", voice: "chest" },
+      { text: "An-chors a-weigh!", voice: "head" },
+      { text: "Fare-well to col-lege joys", voice: "head" },
+      { text: "We sail at break of day,", voice: "head" },
+      { text: "Day, day, day.", voice: "chest" },
+      { text: "Through our last night on shore", voice: "chest" },
+      { text: "Hail to the foam", voice: "head" },
+      { text: "Un-til we meet once more", voice: "head" },
+      { text: "Here’s wish-ing you a hap-py voy-age home", voice: "head" }
     ];
 
     const container = document.getElementById('lyrics-container');
     let syllables = [];
     let currentIndex = -1;
 
-    rawLyrics.forEach(lineText => {
+    songData.forEach(lineObj => {
       const lineDiv = document.createElement('div');
-      lineDiv.className = 'line';
+      lineDiv.className = `line ${lineObj.voice}-voice`;
       
-      const words = lineText.split(' ');
+      const words = lineObj.text.split(' ');
       words.forEach((wordText) => {
         const wordSpan = document.createElement('span');
         wordSpan.className = 'word';
@@ -115,6 +229,32 @@
 
       container.appendChild(lineDiv);
     });
+
+    // Directly jump to a syllable index and re-sync passed/active classes
+    function jumpToSyllable(targetIndex, event) {
+      if (event) event.stopPropagation(); // Prevents triggers from background click listener
+      if (targetIndex < 0 || targetIndex >= syllables.length) return;
+
+      syllables.forEach((syl, i) => {
+        syl.classList.remove('active', 'passed');
+        if (i < targetIndex) {
+          syl.classList.add('passed');
+        } else if (i === targetIndex) {
+          syl.classList.add('active');
+        }
+      });
+
+      currentIndex = targetIndex;
+      syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Finds target syllable by text match
+    function jumpToWord(targetText, event) {
+      const index = syllables.findIndex(syl => syl.textContent.trim() === targetText);
+      if (index !== -1) {
+        jumpToSyllable(index, event);
+      }
+    }
 
     function advance() {
       if (currentIndex < syllables.length - 1) {
