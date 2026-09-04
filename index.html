@@ -8,7 +8,7 @@
       font-family: 'Arial Black', Impact, sans-serif;
       background-color: #121212;
       margin: 0;
-      padding: 40px 32vw 40px 40px; /* Padding keeps lyrics clear of sidebar */
+      padding: 40px 32vw 40px 40px;
       box-sizing: border-box;
       user-select: none;
       min-height: 100vh;
@@ -73,14 +73,14 @@
       width: 22vw;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
       z-index: 100;
     }
 
     .info-card {
       background-color: #1a1a1a;
       border-radius: 16px;
-      padding: 20px;
+      padding: 16px;
       text-align: center;
       border: 3px solid;
     }
@@ -96,54 +96,72 @@
     }
 
     .emoji-container {
-      font-size: 2.5rem;
-      margin-bottom: 6px;
+      font-size: 2.2rem;
+      margin-bottom: 4px;
       display: flex;
       justify-content: center;
       gap: 15px;
     }
 
     .card-title {
-      font-size: 2.2rem;
+      font-size: 1.8rem;
       letter-spacing: 2px;
       margin: 0;
     }
 
-    /* Phrase Jump Section */
-    #phrase-nav {
+    /* Nav Section Container */
+    .nav-section {
       background-color: #1a1a1a;
       border-radius: 16px;
-      padding: 18px;
+      padding: 14px;
       border: 2px solid #333333;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .nav-title {
       color: #888888;
       font-family: sans-serif;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin: 0 0 4px 0;
+      margin: 0 0 2px 0;
       text-align: center;
     }
 
-    .phrase-btn {
+    .nav-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn {
       background-color: #2a2a2a;
       color: #ffffff;
       border: 2px solid #444444;
       border-radius: 10px;
-      padding: 12px;
+      padding: 10px;
       font-family: 'Arial Black', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.15s ease;
       text-align: center;
     }
 
-    .phrase-btn:hover {
+    .btn:hover {
+      background-color: #FFD700;
+      color: #000000;
+      border-color: #FFD700;
+    }
+
+    .btn.active-song {
       background-color: #FFD700;
       color: #000000;
       border-color: #FFD700;
@@ -164,7 +182,6 @@
 
   <div id="lyrics-container"></div>
 
-  <!-- Persistent Sidebar -->
   <div id="sidebar">
     <div class="info-card heavy">
       <div class="emoji-container">🏋️ 🍞</div>
@@ -176,59 +193,124 @@
       <h2 class="card-title">LIGHT</h2>
     </div>
 
-    <!-- Navigation Shortcuts -->
-    <div id="phrase-nav">
+    <div class="nav-section">
       <div class="nav-title">Jump to Phrase</div>
-      <button class="phrase-btn" onclick="jumpToSyllable(0, event)">Phrase 1 ("An-chors")</button>
-      <button class="phrase-btn" onclick="jumpToWord('Fare', event)">Phrase 2 ("Fare-well")</button>
-      <button class="phrase-btn" onclick="jumpToWord('Through', event)">Phrase 3 ("Through")</button>
-      <button class="phrase-btn" onclick="jumpToWord('Un', event)">Phrase 4 ("Un-til")</button>
+      <div id="phrase-buttons" class="nav-grid"></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Select Song</div>
+      <div class="nav-grid-2">
+        <button id="song-btn-navy" class="btn active-song" onclick="switchSong('navy', event)">Navy</button>
+        <button id="song-btn-coastGuard" class="btn" onclick="switchSong('coastGuard', event)">Coast Guard</button>
+      </div>
     </div>
   </div>
 
   <div id="controls">Click anywhere or use spacebar/arrow keys to advance</div>
 
   <script>
-    const songData = [
-      { text: "An-chors a-weigh, my boys", voice: "chest" },
-      { text: "An-chors a-weigh!", voice: "head" },
-      { text: "Fare-well to col-lege joys", voice: "head" },
-      { text: "We sail at break of day,", voice: "head" },
-      { text: "Day, day, day.", voice: "chest" },
-      { text: "Through our last night on shore", voice: "chest" },
-      { text: "Hail to the foam", voice: "head" },
-      { text: "Un-til we meet once more", voice: "head" },
-      { text: "Here’s wish-ing you a hap-py voy-age home", voice: "head" }
-    ];
+    const songs = {
+      navy: {
+        data: [
+          { text: "An-chors a-weigh, my boys", voice: "chest" },
+          { text: "An-chors a-weigh!", voice: "head" },
+          { text: "Fare-well to col-lege joys", voice: "head" },
+          { text: "We sail at break of day,", voice: "head" },
+          { text: "Day, day, day.", voice: "chest" },
+          { text: "Through our last night on shore", voice: "chest" },
+          { text: "Hail to the foam", voice: "head" },
+          { text: "Un-til we meet once more", voice: "head" },
+          { text: "Here’s wish-ing you a hap-py voy-age home", voice: "head" }
+        ],
+        phrases: [
+          { label: 'Phrase 1 ("An-chors")', word: 'An' },
+          { label: 'Phrase 2 ("Fare-well")', word: 'Fare' },
+          { label: 'Phrase 3 ("Through")', word: 'Through' },
+          { label: 'Phrase 4 ("Un-til")', word: 'Un' }
+        ]
+      },
+      coastGuard: {
+        data: [
+          { text: "We’re al-ways read-y for the call!", voice: "chest" },
+          { text: "We place our trust in thee!", voice: "head" },
+          { text: "Through surf and storm and how-ling gale", voice: "head" },
+          { text: "High shall our pur-pose be!", voice: "head" },
+          { text: "“Sem-per Par-a-tus” is our guide", voice: "chest" },
+          { text: "Our fame, our glo-ry, too", voice: "head" },
+          { text: "To fight to save or fight and die.", voice: "head" },
+          { text: "Aye! Coast Guard, we are for you.", voice: "head" }
+        ],
+        phrases: [
+          { label: 'Phrase 1 ("We’re")', word: 'We’re' },
+          { label: 'Phrase 2 ("Through")', word: 'Through' },
+          { label: 'Phrase 3 ("“Sem-per")', word: '“Sem' },
+          { label: 'Phrase 4 ("To fight")', word: 'To' }
+        ]
+      }
+    };
 
-    const container = document.getElementById('lyrics-container');
+    let currentSongKey = 'navy';
     let syllables = [];
     let currentIndex = -1;
+    const container = document.getElementById('lyrics-container');
+    const phraseContainer = document.getElementById('phrase-buttons');
 
-    songData.forEach(lineObj => {
-      const lineDiv = document.createElement('div');
-      lineDiv.className = `line ${lineObj.voice}-voice`;
-      
-      const words = lineObj.text.split(' ');
-      words.forEach((wordText) => {
-        const wordSpan = document.createElement('span');
-        wordSpan.className = 'word';
+    function loadSong(songKey) {
+      currentSongKey = songKey;
+      container.innerHTML = '';
+      phraseContainer.innerHTML = '';
+      syllables = [];
+      currentIndex = -1;
 
-        const syls = wordText.split('-');
-        syls.forEach((sylText) => {
-          const sylSpan = document.createElement('span');
-          sylSpan.className = 'syllable';
-          sylSpan.textContent = sylText;
-          
-          wordSpan.appendChild(sylSpan);
-          syllables.push(sylSpan);
+      const song = songs[songKey];
+
+      // Build Lyrics DOM
+      song.data.forEach(lineObj => {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = `line ${lineObj.voice}-voice`;
+        
+        const words = lineObj.text.split(' ');
+        words.forEach((wordText) => {
+          const wordSpan = document.createElement('span');
+          wordSpan.className = 'word';
+
+          const syls = wordText.split('-');
+          syls.forEach((sylText) => {
+            const sylSpan = document.createElement('span');
+            sylSpan.className = 'syllable';
+            sylSpan.textContent = sylText;
+            
+            wordSpan.appendChild(sylSpan);
+            syllables.push(sylSpan);
+          });
+
+          lineDiv.appendChild(wordSpan);
         });
 
-        lineDiv.appendChild(wordSpan);
+        container.appendChild(lineDiv);
       });
 
-      container.appendChild(lineDiv);
-    });
+      // Build Phrase Jump Buttons
+      song.phrases.forEach(phrase => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.textContent = phrase.label;
+        btn.onclick = (e) => jumpToWord(phrase.word, e);
+        phraseContainer.appendChild(btn);
+      });
+
+      // Update Song Selector Button States
+      document.getElementById('song-btn-navy').classList.toggle('active-song', songKey === 'navy');
+      document.getElementById('song-btn-coastGuard').classList.toggle('active-song', songKey === 'coastGuard');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchSong(songKey, event) {
+      if (event) event.stopPropagation();
+      loadSong(songKey);
+    }
 
     function jumpToSyllable(targetIndex, event) {
       if (event) event.stopPropagation();
@@ -262,7 +344,6 @@
         }
         currentIndex++;
         syllables[currentIndex].classList.add('active');
-        
         syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
@@ -274,7 +355,6 @@
         if (currentIndex >= 0) {
           syllables[currentIndex].classList.remove('passed');
           syllables[currentIndex].classList.add('active');
-          // Now auto-scrolls backward to keep active syllable centered:
           syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
@@ -291,6 +371,9 @@
     });
 
     window.addEventListener('click', advance);
+
+    // Initial Load
+    loadSong('navy');
   </script>
 </body>
 </html>
