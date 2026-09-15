@@ -136,12 +136,6 @@
       gap: 8px;
     }
 
-    .nav-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
     .btn {
       background-color: #2a2a2a;
       color: #ffffff;
@@ -149,7 +143,7 @@
       border-radius: 10px;
       padding: 10px;
       font-family: 'Arial Black', sans-serif;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.15s ease;
       text-align: center;
@@ -182,6 +176,7 @@
 
   <div id="lyrics-container"></div>
 
+  <!-- Persistent Sidebar -->
   <div id="sidebar">
     <div class="info-card heavy">
       <div class="emoji-container">🏋️ 🍞</div>
@@ -193,16 +188,19 @@
       <h2 class="card-title">LIGHT</h2>
     </div>
 
+    <!-- Phrase Navigation -->
     <div class="nav-section">
       <div class="nav-title">Jump to Phrase</div>
       <div id="phrase-buttons" class="nav-grid"></div>
     </div>
 
+    <!-- Song Selector -->
     <div class="nav-section">
       <div class="nav-title">Select Song</div>
-      <div class="nav-grid-2">
+      <div class="nav-grid">
         <button id="song-btn-navy" class="btn active-song" onclick="switchSong('navy', event)">Navy</button>
         <button id="song-btn-coastGuard" class="btn" onclick="switchSong('coastGuard', event)">Coast Guard</button>
+        <button id="song-btn-airForce" class="btn" onclick="switchSong('airForce', event)">U.S. Air Force</button>
       </div>
     </div>
   </div>
@@ -246,6 +244,24 @@
           { label: 'Phrase 2 ("Through")', word: 'Through' },
           { label: 'Phrase 3 ("“Sem-per")', word: '“Sem' },
           { label: 'Phrase 4 ("To fight")', word: 'To' }
+        ]
+      },
+      airForce: {
+        data: [
+          { text: "Off we go in-to the wild blue yon-der", voice: "chest" },
+          { text: "Fly-ing high in-to the sun", voice: "head" },
+          { text: "Here they come zoom-ing to meet our thun-der", voice: "chest" },
+          { text: "At ‘em boys, give ‘er the gun!", voice: "head" },
+          { text: "Down we dive spout-ing our flame from un-der", voice: "chest" },
+          { text: "Off with one ter-ri-ble roar", voice: "head" },
+          { text: "We live in fame or go down in flame", voice: "head" },
+          { text: "For noth-ing can stop the U.S. Air Force", voice: "head" }
+        ],
+        phrases: [
+          { label: 'Phrase 1 ("Off")', targetIndex: 0 },
+          { label: 'Phrase 2 ("Here")', word: 'Here' },
+          { label: 'Phrase 3 ("Down")', word: 'Down' },
+          { label: 'Phrase 4 ("We live")', word: 'We' }
         ]
       }
     };
@@ -296,13 +312,22 @@
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.textContent = phrase.label;
-        btn.onclick = (e) => jumpToWord(phrase.word, e);
+        btn.onclick = (e) => {
+          if (phrase.targetIndex !== undefined) {
+            jumpToSyllable(phrase.targetIndex, e);
+          } else {
+            jumpToWord(phrase.word, e);
+          }
+        };
         phraseContainer.appendChild(btn);
       });
 
       // Update Song Selector Button States
-      document.getElementById('song-btn-navy').classList.toggle('active-song', songKey === 'navy');
-      document.getElementById('song-btn-coastGuard').classList.toggle('active-song', songKey === 'coastGuard');
+      document.querySelectorAll('#sidebar .nav-section:last-child .btn').forEach(btn => {
+        btn.classList.remove('active-song');
+      });
+      const activeBtn = document.getElementById(`song-btn-${songKey}`);
+      if (activeBtn) activeBtn.classList.add('active-song');
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
