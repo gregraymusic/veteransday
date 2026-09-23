@@ -293,16 +293,17 @@
       </div>
 
       <!-- Song Selector Dropdown -->
-      <div class="nav-section">
-        <div class="nav-title">Select Song</div>
-        <select id="song-dropdown" class="song-select" onchange="switchSong(this.value, event)">
-          <option value="navy">Navy</option>
-          <option value="coastGuard">Coast Guard</option>
-          <option value="airForce">U.S. Air Force</option>
-        </select>
-      </div>
-    </aside>
-  </div>
+    <div class="nav-section">
+      <div class="nav-title">Select Song</div>
+      <select id="song-dropdown" class="song-select" onchange="switchSong(this.value, event)">
+        <option value="navy">Navy</option>
+        <option value="coastGuard">Coast Guard</option>
+        <option value="airForce">U.S. Air Force</option>
+        <option value="spaceForce">Space Force</option>
+      </select>
+    </div>
+  </aside>
+</div>
 
   <div id="controls">Click anywhere or use Spacebar / Arrow Keys to advance</div>
 
@@ -345,7 +346,20 @@
           { text: "Down we dive spout-ing our flame from un-der", voice: "chest" },
           { text: "Off with one ter-ri-ble roar", voice: "head" },
           { text: "We live in fame or go down in flame", voice: "head" },
-          { text: "Noth-ing can stop the U.-S. Air Force", voice: "head" }
+          { text: "noth-ing can stop the U.-S. Air Force", voice: "head" }
+        ]
+      },
+      spaceForce: {
+        title: "Space Force",
+        data: [
+          { text: "We’re the migh-ty watch-ful eye,", voice: "head" },
+          { text: "Guar-di-ans be-yond the blue.", voice: "head" },
+          { text: "The in-vis-i-ble front line,", voice: "head" },
+          { text: "War-fight-ers brave and true.", voice: "head" },
+          { text: "Bold-ly reach-ing in-to space,", voice: "head" },
+          { text: "There’s no lim-it to our sky.", voice: "head" },
+          { text: "Stand-ing guard both night and day,", voice: "head" },
+          { text: "We’re the Space Force from on high!", voice: "head" }
         ]
       }
     };
