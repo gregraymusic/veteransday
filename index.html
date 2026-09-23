@@ -2,214 +2,314 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Classroom Lyric Reader</title>
   <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1a1a1a;
+      --card-border: #333333;
+      --gold-highlight: #FFD700;
+      --chest-muted: #c48282;
+      --chest-passed: #FFA0A0;
+      --head-muted: #72a2bd;
+      --head-passed: #A0C8F0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Arial Black', Impact, sans-serif;
-      background-color: #121212;
+      background-color: var(--bg-color);
       margin: 0;
-      padding: 40px 32vw 40px 40px;
-      box-sizing: border-box;
+      padding: 0;
+      color: #ffffff;
       user-select: none;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    #app-layout {
+      display: flex;
+      width: 100vw;
       min-height: 100vh;
     }
 
-    /* Main Lyric Layout */
+    /* Main Lyric Display Area */
+    #main-content {
+      flex: 1 1 auto;
+      padding: 40px 40px 80px 40px;
+      overflow-y: auto;
+    }
+
     #lyrics-container {
       text-align: left;
       line-height: 1.8;
-      font-size: 3.2rem;
+      font-size: clamp(2rem, 4vw, 3.6rem);
       letter-spacing: 1px;
     }
 
     .line {
-      margin-bottom: 25px;
+      margin-bottom: 22px;
       display: block;
     }
 
     .word {
       display: inline-block;
       white-space: nowrap;
-      margin-right: 18px; 
+      margin-right: 16px; 
     }
 
     /* Voice Types & Dimmed Read-Ahead Colors */
     .line.head-voice .syllable {
-      color: #72a2bd; /* Muted pale blue */
+      color: var(--head-muted);
     }
 
     .line.chest-voice .syllable {
-      color: #c48282; /* Muted pale red */
+      color: var(--chest-muted);
     }
 
     .syllable {
       padding: 2px 0;
       border-radius: 4px;
-      transition: all 0.1s ease;
+      transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
     }
 
     /* Active Syllable Highlight */
     .syllable.active {
       color: #000000 !important;
-      background-color: #FFD700;
-      box-shadow: 0 0 12px #FFD700;
-      padding: 2px 4px;
+      background-color: var(--gold-highlight);
+      box-shadow: 0 0 16px var(--gold-highlight);
+      padding: 2px 6px;
     }
 
     /* Sung Syllables */
     .line.head-voice .syllable.passed {
-      color: #A0C8F0; /* Pale Blue */
+      color: var(--head-passed);
     }
 
     .line.chest-voice .syllable.passed {
-      color: #FFA0A0; /* Pale Red */
+      color: var(--chest-passed);
     }
 
-    /* Persistent Fixed Sidebar */
+    /* Responsive Fixed Sidebar */
     #sidebar {
-      position: fixed;
-      right: 40px;
-      top: 40px;
-      width: 22vw;
+      width: clamp(260px, 26vw, 380px);
+      flex: 0 0 auto;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      padding: 16px;
+      background-color: rgba(18, 18, 18, 0.98);
+      border-left: 2px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
+      overflow-y: auto;
       z-index: 100;
     }
 
+    /* Scrollbar styling for compact sidebar */
+    #sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    #sidebar::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
+
     .info-card {
-      background-color: #1a1a1a;
-      border-radius: 16px;
-      padding: 16px;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: clamp(8px, 1.2vh, 14px);
       text-align: center;
       border: 3px solid;
+      flex: 0 1 auto;
     }
 
     .info-card.heavy {
-      border-color: #FFA0A0;
-      color: #FFA0A0;
+      border-color: var(--chest-passed);
+      color: var(--chest-passed);
     }
 
     .info-card.light {
-      border-color: #A0C8F0;
-      color: #A0C8F0;
+      border-color: var(--head-passed);
+      color: var(--head-passed);
     }
 
     .emoji-container {
-      font-size: 2.2rem;
-      margin-bottom: 4px;
+      font-size: clamp(1.2rem, 1.8vh, 1.8rem);
+      margin-bottom: 2px;
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
     }
 
     .card-title {
-      font-size: 1.8rem;
+      font-size: clamp(1.1rem, 1.6vh, 1.5rem);
       letter-spacing: 2px;
-.margin: 0;
+      margin: 0;
     }
 
-    /* Nav Section Container */
+    /* Section Containers */
     .nav-section {
-      background-color: #1a1a1a;
-      border-radius: 16px;
-      padding: 14px;
-      border: 2px solid #333333;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: clamp(10px, 1.2vh, 14px);
+      border: 2px solid var(--card-border);
       display: flex;
       flex-direction: column;
       gap: 8px;
+      flex: 0 1 auto;
     }
 
     .nav-title {
       color: #888888;
       font-family: sans-serif;
-      font-size: 0.8rem;
+      font-size: clamp(0.7rem, 0.9vh, 0.8rem);
       text-transform: uppercase;
       letter-spacing: 1px;
       margin: 0 0 2px 0;
       text-align: center;
     }
 
-    .nav-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    /* 2-Column Compact Phrase Grid */
+    .phrase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
     }
 
     .btn {
       background-color: #2a2a2a;
       color: #ffffff;
       border: 2px solid #444444;
-      border-radius: 10px;
-      padding: 10px;
+      border-radius: 8px;
+      padding: clamp(6px, 1vh, 9px) 4px;
       font-family: 'Arial Black', sans-serif;
-      font-size: 0.95rem;
+      font-size: clamp(0.75rem, 1.1vh, 0.9rem);
       cursor: pointer;
       transition: all 0.15s ease;
       text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
     }
 
     .btn:hover {
-      background-color: #FFD700;
+      background-color: var(--gold-highlight);
       color: #000000;
-      border-color: #FFD700;
+      border-color: var(--gold-highlight);
     }
 
-    .btn.active-song {
-      background-color: #FFD700;
-      color: #000000;
-      border-color: #FFD700;
+    /* Stylish Song Dropdown */
+    .song-select {
+      width: 100%;
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 2px solid var(--gold-highlight);
+      border-radius: 8px;
+      padding: clamp(8px, 1.2vh, 10px) 12px;
+      font-family: 'Arial Black', sans-serif;
+      font-size: clamp(0.85rem, 1.3vh, 1.05rem);
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .song-select:focus, .song-select:hover {
+      background-color: #333333;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+
+    .song-select option {
+      background-color: #1a1a1a;
+      color: #ffffff;
+      font-family: sans-serif;
+      font-size: 1rem;
+      padding: 8px;
     }
 
     #controls {
       position: fixed;
-      bottom: 15px;
-      left: 40px;
+      bottom: 12px;
+      left: 30px;
       font-family: sans-serif;
-      font-size: 0.9rem;
-      color: #666666;
-      z-index: 100;
+      font-size: 0.85rem;
+      color: #888888;
+      background: rgba(18, 18, 18, 0.8);
+      padding: 4px 10px;
+      border-radius: 6px;
+      pointer-events: none;
+      z-index: 90;
+    }
+
+    @media (max-width: 768px) {
+      #app-layout {
+        flex-direction: column;
+      }
+      #main-content {
+        padding: 20px 20px 40px 20px;
+      }
+      #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-left: none;
+        border-top: 2px solid var(--card-border);
+      }
+      #controls {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div id="lyrics-container"></div>
+  <div id="app-layout">
+    <main id="main-content">
+      <div id="lyrics-container"></div>
+    </main>
 
-  <!-- Persistent Sidebar -->
-  <div id="sidebar">
-    <div class="info-card heavy">
-      <div class="emoji-container">🏋️ 🍞</div>
-      <h2 class="card-title">HEAVY</h2>
-    </div>
-
-    <div class="info-card light">
-      <div class="emoji-container">☁️ 🪶</div>
-      <h2 class="card-title">LIGHT</h2>
-    </div>
-
-    <!-- Phrase Navigation -->
-    <div class="nav-section">
-      <div class="nav-title">Jump to Phrase</div>
-      <div id="phrase-buttons" class="nav-grid"></div>
-    </div>
-
-    <!-- Song Selector -->
-    <div class="nav-section">
-      <div class="nav-title">Select Song</div>
-      <div class="nav-grid">
-        <button id="song-btn-navy" class="btn active-song" onclick="switchSong('navy', event)">Navy</button>
-        <button id="song-btn-coastGuard" class="btn" onclick="switchSong('coastGuard', event)">Coast Guard</button>
-        <button id="song-btn-airForce" class="btn" onclick="switchSong('airForce', event)">U.S. Air Force</button>
+    <aside id="sidebar">
+      <div class="info-card heavy">
+        <div class="emoji-container">🏋️ 🍞</div>
+        <h2 class="card-title">HEAVY</h2>
       </div>
-    </div>
+
+      <div class="info-card light">
+        <div class="emoji-container">☁️ 🪶</div>
+        <h2 class="card-title">LIGHT</h2>
+      </div>
+
+      <!-- Phrase Navigation Section -->
+      <div class="nav-section">
+        <div class="nav-title">Jump to Line</div>
+        <div id="phrase-buttons" class="phrase-grid"></div>
+      </div>
+
+      <!-- Song Selector Dropdown -->
+      <div class="nav-section">
+        <div class="nav-title">Select Song</div>
+        <select id="song-dropdown" class="song-select" onchange="switchSong(this.value, event)">
+          <option value="navy">Navy</option>
+          <option value="coastGuard">Coast Guard</option>
+          <option value="airForce">U.S. Air Force</option>
+        </select>
+      </div>
+    </aside>
   </div>
 
-  <div id="controls">Click anywhere or use spacebar/arrow keys to advance</div>
+  <div id="controls">Click anywhere or use Spacebar / Arrow Keys to advance</div>
 
   <script>
     const songs = {
       navy: {
+        title: "Navy",
         data: [
           { text: "An-chors a-weigh, my boys", voice: "chest" },
           { text: "An-chors a-weigh!", voice: "head" },
@@ -220,15 +320,10 @@
           { text: "Hail to the foam", voice: "head" },
           { text: "Un-til we meet once more", voice: "head" },
           { text: "Here’s wish-ing you a hap-py voy-age home", voice: "head" }
-        ],
-        phrases: [
-          { label: 'Phrase 1 ("An-chors")', word: 'An' },
-          { label: 'Phrase 2 ("Fare-well")', word: 'Fare' },
-          { label: 'Phrase 3 ("Through")', word: 'Through' },
-          { label: 'Phrase 4 ("Un-til")', word: 'Un' }
         ]
       },
       coastGuard: {
+        title: "Coast Guard",
         data: [
           { text: "We’re al-ways read-y for the call!", voice: "chest" },
           { text: "We place our trust in thee!", voice: "head" },
@@ -238,15 +333,10 @@
           { text: "Our fame, our glo-ry, too", voice: "head" },
           { text: "To fight to save or fight and die.", voice: "head" },
           { text: "Aye! Coast Guard, we are for you.", voice: "head" }
-        ],
-        phrases: [
-          { label: 'Phrase 1 ("We’re")', word: 'We’re' },
-          { label: 'Phrase 2 ("Through")', word: 'Through' },
-          { label: 'Phrase 3 ("“Sem-per")', word: '“Sem' },
-          { label: 'Phrase 4 ("To fight")', word: 'To' }
         ]
       },
       airForce: {
+        title: "U.S. Air Force",
         data: [
           { text: "Off we go in-to the wild blue yon-der", voice: "chest" },
           { text: "Fly-ing high in-to the sun", voice: "head" },
@@ -255,20 +345,16 @@
           { text: "Down we dive spout-ing our flame from un-der", voice: "chest" },
           { text: "Off with one ter-ri-ble roar", voice: "head" },
           { text: "We live in fame or go down in flame", voice: "head" },
-          { text: "For noth-ing can stop the U.-S. Air Force", voice: "head" }
-        ],
-        phrases: [
-          { label: 'Phrase 1 ("Off")', targetIndex: 0 },
-          { label: 'Phrase 2 ("Here")', word: 'Here' },
-          { label: 'Phrase 3 ("Down")', word: 'Down' },
-          { label: 'Phrase 4 ("We live")', word: 'We' }
+          { text: "Noth-ing can stop the U.-S. Air Force", voice: "head" }
         ]
       }
     };
 
     let currentSongKey = 'navy';
     let syllables = [];
+    let lineStartIndexMap = [];
     let currentIndex = -1;
+
     const container = document.getElementById('lyrics-container');
     const phraseContainer = document.getElementById('phrase-buttons');
 
@@ -277,15 +363,18 @@
       container.innerHTML = '';
       phraseContainer.innerHTML = '';
       syllables = [];
+      lineStartIndexMap = [];
       currentIndex = -1;
 
       const song = songs[songKey];
 
-      // Build Lyrics DOM
-      song.data.forEach(lineObj => {
+      // Build Lyrics DOM and track line start syllable indices
+      song.data.forEach((lineObj, lineIndex) => {
         const lineDiv = document.createElement('div');
         lineDiv.className = `line ${lineObj.voice}-voice`;
         
+        lineStartIndexMap.push(syllables.length);
+
         const words = lineObj.text.split(' ');
         words.forEach((wordText) => {
           const wordSpan = document.createElement('span');
@@ -307,27 +396,22 @@
         container.appendChild(lineDiv);
       });
 
-      // Build Phrase Jump Buttons
-      song.phrases.forEach(phrase => {
+      // Build Phrase/Line Jump Buttons for EVERY line
+      song.data.forEach((lineObj, lineIndex) => {
         const btn = document.createElement('button');
         btn.className = 'btn';
-        btn.textContent = phrase.label;
-        btn.onclick = (e) => {
-          if (phrase.targetIndex !== undefined) {
-            jumpToSyllable(phrase.targetIndex, e);
-          } else {
-            jumpToWord(phrase.word, e);
-          }
-        };
+        
+        // Extract first word for a descriptive button title
+        const firstWord = lineObj.text.split(' ')[0].replace('-', '');
+        btn.textContent = `L${lineIndex + 1}: ${firstWord}`;
+        btn.title = `Jump to Line ${lineIndex + 1}`;
+        
+        btn.onclick = (e) => jumpToSyllable(lineStartIndexMap[lineIndex], e);
         phraseContainer.appendChild(btn);
       });
 
-      // Update Song Selector Button States
-      document.querySelectorAll('#sidebar .nav-section:last-child .btn').forEach(btn => {
-        btn.classList.remove('active-song');
-      });
-      const activeBtn = document.getElementById(`song-btn-${songKey}`);
-      if (activeBtn) activeBtn.classList.add('active-song');
+      // Ensure dropdown reflects active selection
+      document.getElementById('song-dropdown').value = songKey;
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -354,13 +438,6 @@
       syllables[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function jumpToWord(targetText, event) {
-      const index = syllables.findIndex(syl => syl.textContent.trim() === targetText);
-      if (index !== -1) {
-        jumpToSyllable(index, event);
-      }
-    }
-
     function advance() {
       if (currentIndex < syllables.length - 1) {
         if (currentIndex >= 0) {
@@ -385,6 +462,7 @@
       }
     }
 
+    // Key Listener
     window.addEventListener('keydown', (e) => {
       if (['Space', 'ArrowRight', 'PageDown', 'ArrowDown'].includes(e.code)) {
         e.preventDefault();
@@ -395,9 +473,14 @@
       }
     });
 
-    window.addEventListener('click', advance);
+    // Global Click Listener
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('button') && !e.target.closest('select') && !e.target.closest('#sidebar')) {
+        advance();
+      }
+    });
 
-    // Initial Load
+    // Initial App Load
     loadSong('navy');
   </script>
 </body>
